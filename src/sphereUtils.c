@@ -7,39 +7,6 @@
 
 #define PI 3.14159265358979323846
 
-void getAngles(double *n, double phi0, double *angles)
-{
-    double beta = 0;
-    double alpha = acos(n[2]);
-
-    if (fabs(n[2]) == 1.0)
-    {
-
-        if (n[2] > 0)
-        {
-            beta = phi0;
-        }
-        else
-        {
-            beta = PI + phi0;
-        }
-    }
-
-    else
-    {
-        beta = acos(-n[1] / sqrt(pow(n[0], 2) + pow(n[1], 2)));
-        if ((roundl(n[0] * 1e5)) < 0)
-        {
-            beta = 2 * PI - beta;
-        }
-    }
-
-    angles[0] = alpha;
-    angles[1] = beta;
-
-    return;
-}
-
 void genSphere(Sphere *sphere, double r, double phi0, double theta0, double w, double gamma)
 {
 
@@ -73,29 +40,39 @@ void computeRelativePhi0(Sphere *sp)
     sp->phi0relative = phi0Prime;
 }
 
-double dotProd(double *x, double *y, size_t len)
-{
-    double result = 0;
-
-    for (size_t i = 0; i != len; i++)
-    {
-        result += x[i] * y[i];
-    }
-    return (result);
-}
-
 void computeRefAngles(Sphere *sp)
 {
     double *n = (double *)malloc(3 * sizeof(double));
     getNormal(sp, n);
 
-    double *angles = (double *)malloc(2 * sizeof(double));
+    double beta = 0;
+    double alpha = acos(n[2]);
 
-    getAngles(n, sp->phi0, angles);
-    sp->alpha = angles[0];
-    sp->beta = angles[1];
+    if (fabs(n[2]) == 1.0)
+    {
 
-    free(angles);
+        if (n[2] > 0)
+        {
+            beta = sp->phi0;
+        }
+        else
+        {
+            beta = PI + sp->phi0;
+        }
+    }
+
+    else
+    {
+        beta = acos(-n[1] / sqrt(pow(n[0], 2) + pow(n[1], 2)));
+        if ((roundl(n[0] * 1e5)) < 0)
+        {
+            beta = 2 * PI - beta;
+        }
+    }
+
+    sp->alpha = alpha;
+    sp->beta = beta;
+
     free(n);
     return;
 }
@@ -210,22 +187,18 @@ void generatePlaneSpheres(double theta0,
 {
     srand(time(0));
 
-    double u1 = -cos(phi0) * cos(theta0) * sin(gamma) - sin(phi0) * cos(gamma);
-    double u2 = -sin(phi0) * cos(theta0) * sin(gamma) + cos(phi0) * cos(gamma);
-    double u3 = sin(theta0) * sin(gamma);
+    //Reference sphere
+    Sphere sp;
+    genSphere(&sp, 1, phi0, theta0, 1, gamma);
 
     double *n = (double *)malloc(3 * sizeof(double));
 
-    n[0] = -u2 * cos(theta0) + u3 * sin(theta0) * sin(phi0);
-    n[1] = -u3 * cos(phi0) * sin(theta0) + u1 * cos(theta0);
-    n[2] = sin(theta0) * (-u1 * sin(phi0) + u2 * cos(phi0));
+    getNormal(&sp, n);
 
-    double *angles = (double *)malloc(2 * sizeof(double));
+    computeRefAngles(&sp);
 
-    getAngles(n, phi0, angles);
-
-    double phi0Prime = acos(sin(theta0) * cos(phi0 - ((angles[1] < PI) * angles[1] + (angles[1] >= PI) * (angles[1] - PI))));
-    phi0Prime += (angles[1] - PI >= 0.0 && roundl(sin(theta0) * 1000) / 1000 != 0 && roundf((phi0Prime - PI) * 100000) < 0.0 ? PI : 0);
+    double phi0Prime = acos(sin(theta0) * cos(phi0 - ((sp.beta < PI) * sp.beta + (sp.beta >= PI) * (sp.beta - PI))));
+    phi0Prime += (sp.beta - PI >= 0.0 && roundl(sin(theta0) * 1000) / 1000 != 0 && roundf((phi0Prime - PI) * 100000) < 0.0 ? PI : 0);
 
     double *randomAngles = (double *)malloc(N * sizeof(double));
     int8_t *randomSigns = (int8_t *)malloc(N * sizeof(int8_t));
@@ -247,14 +220,17 @@ void generatePlaneSpheres(double theta0,
     for (size_t i = 0; i != N; i++)
     {
 
-        x[i] = (cos(angles[1]) * cos(phi0Prime + randomAngles[i]) - sin(angles[1]) * cos(angles[0]) * sin(phi0Prime + randomAngles[i]));
-        y[i] = (sin(angles[1]) * cos(phi0Prime + randomAngles[i]) + cos(angles[1]) * cos(angles[0]) * sin(phi0Prime + randomAngles[i]));
-        z[i] = sin(angles[0]) * sin(phi0Prime + randomAngles[i]);
+        //Cartesian coordinates
+        x[i] = (cos(sp.beta) * cos(phi0Prime + randomAngles[i]) - sin(sp.beta) * cos(sp.alpha) * sin(phi0Prime + randomAngles[i]));
+        y[i] = (sin(sp.beta) * cos(phi0Prime + randomAngles[i]) + cos(sp.beta) * cos(sp.alpha) * sin(phi0Prime + randomAngles[i]));
+        z[i] = sin(sp.alpha) * sin(phi0Prime + randomAngles[i]);
 
+        //Movement direction using a unit vector
         uv1[i] = n[1] * z[i] - n[2] * y[i];
         uv2[i] = n[2] * x[i] - n[0] * z[i];
         uv3[i] = n[0] * y[i] - n[1] * x[i];
 
+        //Randomly flipping movement direction (remain in the same plan)
         uv1[i] *= randomSigns[i];
         uv2[i] *= randomSigns[i];
         uv3[i] *= randomSigns[i];

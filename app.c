@@ -113,8 +113,8 @@ int main(int argc, char **argv)
     printf("Corresponding Distance = %lf \n", minDistance);
 
     printf("\n---------------------------------------------- \n");
-    printf("Sphere %u : r = %lf, w = %lf, theta0 = %lf pi0, phi = %lf pi, uv=[%lf, %lf, %lf]\n", idx1, spX1.r, spX1.w, spX1.theta0 / PI, spX1.phi0 / PI, spX1.u1, spX1.u2, spX1.u3);
-    printf("Sphere %u : r = %lf, w = %lf, theta0 = %lf pi0, phi = %lf pi, uv=[%lf, %lf, %lf]\n", idx2, spX2.r, spX2.w, spX2.theta0 / PI, spX2.phi0 / PI, spX2.u1, spX2.u2, spX2.u3);
+    printf("Sphere %u :\n\t r = %lf, w = %lf \n\t theta0 = %lf pi, phi0 = %lf pi  \n\t uv=[%lf, %lf, %lf] \n\t Swept angle = %lf \n", idx1, spX1.r, spX1.w, spX1.theta0 / PI, spX1.phi0 / PI, spX1.u1, spX1.u2, spX1.u3, fabs(spX1.w) * t);
+    printf("Sphere %u :\n\t r = %lf, w = %lf \n\t theta0 = %lf pi, phi0 = %lf pi  \n\t uv=[%lf, %lf, %lf] \n\t Swept angle = %lf \n", idx2, spX2.r, spX2.w, spX2.theta0 / PI, spX2.phi0 / PI, spX2.u1, spX2.u2, spX2.u3, fabs(spX2.w) * t);
     printf("---------------------------------------------- \n");
     printf("Elapsed time : %lf s\n", end - start);
 
