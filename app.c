@@ -15,71 +15,38 @@ int main(int argc, char **argv)
         sscanf(argv[1], "%u", &N);
     }
 
-    size_t maxR = 10000;
+    size_t maxR = 10000000;
     size_t minR = 1;
 
     printf("N = %u \n", N);
 
-    double *phis = (double *)malloc(N * sizeof(double));
-    double *thetas = (double *)malloc(N * sizeof(double));
-    double *uv1 = (double *)malloc(N * sizeof(double));
-    double *uv2 = (double *)malloc(N * sizeof(double));
-    double *uv3 = (double *)malloc(N * sizeof(double));
-
-    double *r = (double *)malloc(N * sizeof(double));
-    double *w = (double *)malloc(N * sizeof(double));
-
     double distance = 0;
-
-    generatePlaneSpheres(PI / 2,       //Theta
-                         PI / 6,       //Phi
-                         PI / 6,       //Gamma
-                         N,            //Number of spheres
-                         2 * PI,       //Maximal angular speed
-                         2 * PI / 100, //Minimum angular speed
-                         maxR,         //Maximal radius
-                         minR,         //Minimal radius
-                                       //OUTPUT
-                         phis,         //Phi angles
-                         thetas,       //Theta angles
-                         uv1,          //Movement directions x
-                         uv2,          //Movement directions y
-                         uv3,          //Movement directions z
-                         r,            //Radiuses
-                         w);           //Angular speeds
 
     Sphere *spheres = (Sphere *)malloc(N * sizeof(Sphere));
 
-    for (size_t i = 0; i != N; i++)
-    {
-        spheres[i].phi0 = phis[i];
-        spheres[i].theta0 = thetas[i];
-        spheres[i].r = r[i];
-        spheres[i].w = w[i];
-        spheres[i].u1 = uv1[i];
-        spheres[i].u2 = uv2[i];
-        spheres[i].u3 = uv3[i];
-    }
-
-    free(phis);
-    free(thetas);
-
-    free(uv1);
-    free(uv2);
-    free(uv3);
-
-    free(r);
-    free(w);
+    generatePlaneSpheres(PI / 2,        //Theta
+                         PI / 6,        //Phi
+                         PI / 6,        //Gamma
+                         N,             //Number of spheres
+                         2 * PI,        //Maximal angular speed
+                         2 * PI / 1000, //Minimum angular speed
+                         maxR,          //Maximal radius
+                         minR,          //Minimal radius
+                         spheres);      //Angular speeds
 
     double start, end;
 
     printf("\n-----------starting computations------------ \n\n");
+
     start = now();
 
-    double minDistance = maxR - minR + 1; //Rmax - Rmin +1
-    size_t idx1, idx2;
+    //Temporary distance
     double minD;
-
+    //Minimal distance between closest spheres
+    double minDistance = maxR - minR + 1; //Rmax - Rmin +1
+    //Indexes of closest spheres
+    size_t idx1, idx2;
+    
     for (size_t i = 0; i != N; i++)
     {
         computeRefAngles(spheres + i);

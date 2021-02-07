@@ -169,21 +169,21 @@ double tProximity(Sphere *sp1, Sphere *sp2)
     return (timeProximity);
 }
 
-void generatePlaneSpheres(double theta0,
-                          double phi0,
-                          double gamma,
-                          uint64_t N,
-                          double maxW,
-                          double minW,
-                          uint64_t maxR,
-                          uint64_t minR,
-                          double *phis,
-                          double *thetas,
-                          double *uv1,
-                          double *uv2,
-                          double *uv3,
-                          double *r,
-                          double *w)
+void generatePlaneSpheresData(double theta0,
+                              double phi0,
+                              double gamma,
+                              uint64_t N,
+                              double maxW,
+                              double minW,
+                              uint64_t maxR,
+                              uint64_t minR,
+                              double *phis,
+                              double *thetas,
+                              double *uv1,
+                              double *uv2,
+                              double *uv3,
+                              double *r,
+                              double *w)
 {
     srand(time(0));
 
@@ -253,6 +253,68 @@ void generatePlaneSpheres(double theta0,
     free(y);
     free(z);
     free(n);
+
+    return;
+}
+
+void generatePlaneSpheres(double theta0,
+                          double phi0,
+                          double gamma,
+                          uint64_t N,
+                          double maxW,
+                          double minW,
+                          uint64_t maxR,
+                          uint64_t minR,
+                          Sphere *spheres)
+{
+    double *phis = (double *)malloc(N * sizeof(double));
+    double *thetas = (double *)malloc(N * sizeof(double));
+    double *uv1 = (double *)malloc(N * sizeof(double));
+    double *uv2 = (double *)malloc(N * sizeof(double));
+    double *uv3 = (double *)malloc(N * sizeof(double));
+
+    double *r = (double *)malloc(N * sizeof(double));
+    double *w = (double *)malloc(N * sizeof(double));
+
+    double distance = 0;
+
+    generatePlaneSpheresData(PI / 2,       //Theta
+                             PI / 6,       //Phi
+                             PI / 6,       //Gamma
+                             N,            //Number of spheres
+                             2 * PI,       //Maximal angular speed
+                             2 * PI / 100, //Minimum angular speed
+                             maxR,         //Maximal radius
+                             minR,         //Minimal radius
+                                           //OUTPUT
+                             phis,         //Phi angles
+                             thetas,       //Theta angles
+                             uv1,          //Movement directions x
+                             uv2,          //Movement directions y
+                             uv3,          //Movement directions z
+                             r,            //Radiuses
+                             w);           //Angular speeds
+
+    for (size_t i = 0; i != N; i++)
+    {
+        spheres[i].phi0 = phis[i];
+        spheres[i].theta0 = thetas[i];
+        spheres[i].r = r[i];
+        spheres[i].w = w[i];
+        spheres[i].u1 = uv1[i];
+        spheres[i].u2 = uv2[i];
+        spheres[i].u3 = uv3[i];
+    }
+
+    free(phis);
+    free(thetas);
+
+    free(uv1);
+    free(uv2);
+    free(uv3);
+
+    free(r);
+    free(w);
 
     return;
 }

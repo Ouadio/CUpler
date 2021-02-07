@@ -50,8 +50,28 @@ uint8_t neverMeet(Sphere *sp1, Sphere *sp2);
 //First time two spheres get the closest to each other
 double tProximity(Sphere *sp1, Sphere *sp2);
 
-//Generating a random set of spheres moving in the SAME plan as the initial sphere defined
-//by its spherical coordinates (theta0, phi0) and its motion direction (gamma)
+//Generating a random set of spheres data (radius, velocity, direction etc..)
+//moving in the SAME plan as the initial sphere defined by its spherical
+//coordinates (theta0, phi0) and its motion direction (gamma)
+void generatePlaneSpheresData(double theta0,
+                              double phi0,
+                              double gamma,
+                              uint64_t N,
+                              double maxW,
+                              double minW,
+                              uint64_t maxR,
+                              uint64_t minR,
+                              double *phis,
+                              double *thetas,
+                              double *uv1,
+                              double *uv2,
+                              double *uv3,
+                              double *r,
+                              double *w);
+
+//Generating a random set of spheres moving in the SAME plan as the initial
+//sphere defined by its spherical coordinates (theta0, phi0) and its
+//motion direction (gamma)
 void generatePlaneSpheres(double theta0,
                           double phi0,
                           double gamma,
@@ -60,12 +80,6 @@ void generatePlaneSpheres(double theta0,
                           double minW,
                           uint64_t maxR,
                           uint64_t minR,
-                          double *phis,
-                          double *thetas,
-                          double *uv1,
-                          double *uv2,
-                          double *uv3,
-                          double *r,
-                          double *w);
+                          Sphere *spheres);
 
 #endif
